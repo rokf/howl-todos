@@ -1,6 +1,6 @@
 #### TODO bundle for Howl
 
-Adds `:todos` command. It lists all lines which contain the word **TODO** in a single line comment and let you jump to the selected one.
+Adds `:todos` command. It lets you jump to lines on which you've written TODO followed by a message.
 
 #### Installation
 1. `cd ~/.howl/bundles`
