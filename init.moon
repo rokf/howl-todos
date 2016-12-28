@@ -1,38 +1,29 @@
 import command from howl
-import config from howl
-
-with config
-  .define
-    name: 'todo_comment_pattern'
-    description: 'regex pattern for comments which the todo bundle can use'
-    default: "(--|#|;|//)"
-    type_of: 'string'
+import style from howl.ui
+import editor from howl.app
 
 input = () ->
   lines = {}
-  pat = "%s TODO([\\w\\d\\s]+)"\format config.todo_comment_pattern
-  print pat
-  reg = r pat
-  for index, line in pairs howl.app.editor.buffer.lines
-    pfx, msg = reg\match line.text
-    if pfx ~= nil
-      table.insert(lines, {
-        index,
-        msg,
-        nr: index,
-        text: msg,
-      })
+  for index, line in pairs editor.buffer.lines
+    msg = string.match(line.text, "TODO (.+)")
+    if msg != nil
+      editor.cursor.line = index
+      editor.cursor\line_end!
+      editor.cursor\left!
+      style_at_pos = style.at_pos(editor.buffer,editor.cursor.pos)
+      if style_at_pos == "comment"
+        table.insert(lines,{index,msg,nr: index,text: msg})
   return howl.interact.select({
     items: lines
     columns: {
       { header: 'Line' },
-      { header: 'Description'}
+      { header: 'Description' }
     }
   })
 
 handler = (ln) ->
-  howl.app.editor.cursor.line = ln.selection.nr
-  howl.app.editor.cursor\line_end(false)
+  editor.cursor.line = ln.selection.nr
+  editor.cursor\line_end!
 
 command.register({
   name: "todos"
@@ -40,8 +31,10 @@ command.register({
   :input
   :handler
 })
+
 unload = () ->
   command.unregister "todos"
+
 return {
   info: {
     author: 'Rok Fajfar',
