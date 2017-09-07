@@ -5,15 +5,21 @@ import editor from howl.app
 input = () ->
   lines = {}
   for index, line in pairs editor.buffer.lines
-    msg = string.match(line.text, "TODO (.+)")
+    msg = string.match(line.text, "(TODO.*)")
     if msg != nil
       editor.cursor.line = index
       editor.cursor\line_end!
       editor.cursor\left!
-      style_at_pos = style.at_pos(editor.buffer,editor.cursor.pos)
-      if style_at_pos == "comment"
-        table.insert(lines,{index,msg,nr: index,text: msg})
-  return howl.interact.select({
+      if style.at_pos(editor.buffer,editor.cursor.pos) == "comment"
+        table.insert(lines, {
+          index,
+          msg,
+          nr: index,
+          text: msg,
+          buffer: editor.buffer,
+          line_nr: index
+        })
+  return howl.interact.select_location({
     items: lines
     columns: {
       { header: 'Line' },
